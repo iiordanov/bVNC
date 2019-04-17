@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
@@ -236,11 +237,15 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "arriveOnPage called");
         SQLiteDatabase db = database.getReadableDatabase();
         ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
-        ConnectionBean.getAll(db,
-                              ConnectionBean.GEN_TABLE_NAME, connections,
-                              ConnectionBean.newInstance);
-        Collections.sort(connections);
-        connections.add(0, new ConnectionBean(this));
+        try {
+            ConnectionBean.getAll(db,
+                    ConnectionBean.GEN_TABLE_NAME, connections,
+                    ConnectionBean.newInstance);
+            Collections.sort(connections);
+            connections.add(0, new ConnectionBean(this));
+        }catch(Exception ex){
+            Log.e(TAG, "Exception in arriveOnPage(): "+ex.getMessage());
+        }
         int connectionIndex = 0;
         if (connections.size() > 1) {
             MostRecentBean mostRecent = ConnectionBean.getMostRecent(db);
@@ -370,7 +375,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
         }
         String defaultInputHandlerId = Utils.querySharedPreferenceString(
-                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
+                this, Constants.defaultInputMethodTag, InputHandlerDirectDragPan.ID);
         android.util.Log.e(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
 
         try {
